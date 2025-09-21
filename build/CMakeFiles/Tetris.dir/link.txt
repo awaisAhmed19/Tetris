@@ -1,0 +1,1 @@
+/usr/sbin/c++ -Wl,--dependency-file=CMakeFiles/Tetris.dir/link.d CMakeFiles/Tetris.dir/src/Game.cpp.o CMakeFiles/Tetris.dir/src/main.cpp.o -o Tetris  /usr/lib/libSDL2-2.0.so.0.3200.56 /usr/lib/libSDL2main.a /usr/lib/libSDL2_image.so /usr/lib/libSDL2_ttf.so
