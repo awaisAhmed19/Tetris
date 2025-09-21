@@ -1,4 +1,0 @@
-/home/awais/Tetris/build/CMakeFiles/Tetris.dir
-/home/awais/Tetris/build/CMakeFiles/run.dir
-/home/awais/Tetris/build/CMakeFiles/edit_cache.dir
-/home/awais/Tetris/build/CMakeFiles/rebuild_cache.dir
