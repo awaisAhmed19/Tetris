@@ -5,6 +5,12 @@ The goal is to replicate the timeless gameplay mechanics of Tetris while keeping
 
 ---
 
+## 📸 Screenshots
+
+![Tetris Gameplay](./src/tetris.png)
+
+---
+
 ## ✨ Features
 - Classic **Tetris gameplay** with falling tetrominoes
 - **Keyboard controls** for movement and rotation
