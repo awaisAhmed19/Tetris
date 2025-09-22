@@ -4,58 +4,63 @@
 #include <vector>
 
 #include "Game.h"
+#include "tetrominos.h"
 
 using namespace std;
 Game* gg = 0;
-
-void swap(int& a, int& b) {
-    int temp;
-    temp = a;
-    a = b;
-    b = temp;
+void print(vector<vector<int>> t) {
+    for (size_t i = 0; i < t.size(); i++) {
+        for (size_t j = 0; j < t.size(); j++) {
+            cout << t[i][j] << setw(2);
+        }
+        cout << "\n";
+    }
 }
-
-// utility lib
-
+#include "Grid.h"
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         cerr << "SDL init failed: " << SDL_GetError() << endl;
         return 1;
     }
 
-    // Hidden tiny window so SDL sends events
+    tetrominos t;
 
-    SDL_Window* window =
-        SDL_CreateWindow("Keyboard Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640,
-                         480,              // a normal small window
-                         SDL_WINDOW_SHOWN  // <-- must be SHOWN to capture keys
-        );
+    SDL_Window* window = SDL_CreateWindow("Keyboard Test", SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
 
     Grid grid;
-    bool KEYS[322];  // 322 is the number of SDLK_DOWN events
+    bool KEYS[322];
 
     for (int i = 0; i < 322; i++) {  // init them all to false
         KEYS[i] = false;
     }
     // SDL_EnableKeyRepeat(0, 0);
-    // cout << grid;
+    cout << grid;
     bool quit = false;
     SDL_Event ev;
-    tetminoes t;
+    vector<vector<int>> shape = t.getShape(t.type::J);
+    // vector<vector<int>> tetro = t.getshape(t.type::S);
     while (!quit) {
         while (SDL_PollEvent(&ev)) {
             if (ev.type == SDL_QUIT) {
                 quit = true;
             } else if (ev.type == SDL_KEYDOWN) {
                 switch (ev.key.keysym.sym) {
+                    case SDLK_s:
+                        // cout << "left" << endl;
+                        cout << "\n";
+                        break;
                     case SDLK_LEFT:
                         // cout << "left" << endl;
-                        cout << Rotate(t.J);
+                        t.Rotate(shape);
+                        print(shape);
                         cout << "\n";
                         break;
                     case SDLK_RIGHT:
                         cout << "right" << endl;
-                        cout << Rotate(t.O);
+
+                        t.Rotate(shape);
+                        print(shape);
                         cout << "\n";
                         break;
                     case SDLK_UP:

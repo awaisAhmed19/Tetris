@@ -1,6 +1,7 @@
 
 // todo: make this into debugging grid and shape printers
 //
+/*
 ostream& operator<<(ostream& os, vector<vector<int>> t) {
     for (size_t i = 0; i < t.size(); i++) {
         for (size_t j = 0; j < t.size(); j++) {
@@ -32,3 +33,4 @@ ostream& operator<<(ostream& os, const Grid& grid) {
     os << endl;
     return os;
 }
+*/

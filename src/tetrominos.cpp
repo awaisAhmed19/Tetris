@@ -1,7 +1,12 @@
 #include "tetrominos.h"
-
+void swap(int& a, int& b) {
+    int temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
 // Done: roatate transpose the matrix and reverseby rows;
-void tetrominos::rotate(vector<vector<int>>& t) {
+void tetrominos::Rotate(vector<vector<int>>& t) {
     for (size_t i = 0; i < t.size(); i++) {
         for (size_t j = i; j < t[i].size(); j++) {
             swap(t[i][j], t[j][i]);
@@ -13,57 +18,57 @@ void tetrominos::rotate(vector<vector<int>>& t) {
     }
 }
 
-vector<vector<int>> tetrominos::getshape(tetrominos type) const {
+vector<vector<int>> tetrominos::getShape(type type) {
     vector<vector<int>> shape;
     switch (type) {
-        case tetrominos::L:
+        case type::J:
             shape = {
-                {0, 1, 0},
-                {0, 1, 0},
-                {0, 1, 1},
+                {1, 0, 0},
+                {1, 1, 1},
+                {0, 0, 0},
             };
 
             break;
-        case tetrominos::I:
+        case type::I:
             shape = {
+                {0, 0, 0, 0},
                 {1, 1, 1, 1},
                 {0, 0, 0, 0},
                 {0, 0, 0, 0},
-                {0, 0, 0, 0},
             };
             break;
-        case tetrominos::O:
+        case type::O:
             shape = {
                 {1, 1},
                 {1, 1},
             };
             break;
-        case tetrominos::T:
+        case type::T:
             shape = {
                 {0, 1, 0},
                 {1, 1, 1},
                 {0, 0, 0},
             };
             break;
-        case tetrominos::S:
+        case type::S:
             shape = {
                 {0, 1, 1},
                 {1, 1, 0},
                 {0, 0, 0},
             };
             break;
-        case tetrominos::Z:
+        case type::Z:
             shape = {
                 {1, 1, 0},
                 {0, 1, 1},
                 {0, 0, 0},
             };
             break;
-        case tetrominos::J:
+        case type::L:
             shape = {
-                {0, 1, 0},
-                {0, 1, 0},
-                {1, 1, 0},
+                {0, 0, 1},
+                {1, 1, 1},
+                {0, 0, 0},
             };
             break;
         default:
