@@ -1,4 +1,5 @@
 #include "tetrominos.h"
+
 void swap(int& a, int& b) {
     int temp;
     temp = a;
@@ -18,10 +19,31 @@ void tetrominos::Rotate(vector<vector<int>>& t) {
     }
 }
 
-vector<vector<int>> tetrominos::getShape(type type) {
+Pieces tetrominos::charToPieces(char c) {
+    switch (c) {
+        case 'I':
+            return Pieces::I;
+        case 'O':
+            return Pieces::O;
+        case 'T':
+            return Pieces::T;
+        case 'S':
+            return Pieces::S;
+        case 'Z':
+            return Pieces::Z;
+        case 'J':
+            return Pieces::J;
+        case 'L':
+            return Pieces::L;
+        default:
+            throw std::invalid_argument("Invalid piece p");
+    }
+}
+
+vector<vector<int>> tetrominos::getShape(Pieces p) {
     vector<vector<int>> shape;
-    switch (type) {
-        case type::J:
+    switch (p) {
+        case Pieces::J:
             shape = {
                 {1, 0, 0},
                 {1, 1, 1},
@@ -29,7 +51,7 @@ vector<vector<int>> tetrominos::getShape(type type) {
             };
 
             break;
-        case type::I:
+        case Pieces::I:
             shape = {
                 {0, 0, 0, 0},
                 {1, 1, 1, 1},
@@ -37,34 +59,34 @@ vector<vector<int>> tetrominos::getShape(type type) {
                 {0, 0, 0, 0},
             };
             break;
-        case type::O:
+        case Pieces::O:
             shape = {
                 {1, 1},
                 {1, 1},
             };
             break;
-        case type::T:
+        case Pieces::T:
             shape = {
                 {0, 1, 0},
                 {1, 1, 1},
                 {0, 0, 0},
             };
             break;
-        case type::S:
+        case Pieces::S:
             shape = {
                 {0, 1, 1},
                 {1, 1, 0},
                 {0, 0, 0},
             };
             break;
-        case type::Z:
+        case Pieces::Z:
             shape = {
                 {1, 1, 0},
                 {0, 1, 1},
                 {0, 0, 0},
             };
             break;
-        case type::L:
+        case Pieces::L:
             shape = {
                 {0, 0, 1},
                 {1, 1, 1},

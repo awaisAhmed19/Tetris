@@ -3,9 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#include "Game.h"
-#include "tetrominos.h"
-
+#include "./src/game/Game.h"
+#include "./src/game/Grid.h"
+#include "./src/game/tetrominos.h"
 using namespace std;
 Game* gg = 0;
 void print(vector<vector<int>> t) {
@@ -16,7 +16,6 @@ void print(vector<vector<int>> t) {
         cout << "\n";
     }
 }
-#include "Grid.h"
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         cerr << "SDL init failed: " << SDL_GetError() << endl;

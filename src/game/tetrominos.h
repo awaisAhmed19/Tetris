@@ -5,12 +5,12 @@
 #include <vector>
 
 using namespace std;
+enum class Pieces { I, O, T, S, Z, J, L };
 class tetrominos {
    public:
-    enum class type { I, O, T, S, Z, J, L };
-
+    Pieces charToPieces(char c);
     void Rotate(vector<vector<int>>& t);
-    vector<vector<int>> getShape(type t);
+    vector<vector<int>> getShape(Pieces t);
     friend ostream& operator<<(ostream& os, vector<vector<int>> t) {
         for (size_t i = 0; i < t.size(); i++) {
             for (size_t j = 0; j < t.size(); j++) {
