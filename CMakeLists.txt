@@ -124,15 +124,15 @@ endif()
 # DESTINATION "${CMAKE_INSTALL_DATADIR}/pixmaps")
 
 message(STATUS "")
-message(STATUS "  ┌─────────────────────────────────────────┐")
-message(STATUS "  │  tetris ${PROJECT_VERSION} — ${CMAKE_BUILD_TYPE}")
-message(STATUS "  │")
+message(STATUS "  ┌─────────────────────────────────────────────────────┐")
+message(STATUS "  │  tetris ${PROJECT_VERSION} — ${CMAKE_BUILD_TYPE}    │")
+message(STATUS "  │                                                     │")
 message(
     STATUS
-    "  │  Compiler   : ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}"
+    "  │  Compiler   : ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION} │"
 )
-message(STATUS "  │  Build dir  : ${CMAKE_BINARY_DIR}")
-message(STATUS "  │  Install to : ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "  │  Build dir  : ${CMAKE_BINARY_DIR}│  ")
+message(STATUS "  │  Install to : ${CMAKE_INSTALL_PREFIX}│  ")
 # message( STATUS "  │  Asset root : ${CMAKE_SOURCE_DIR}/assets  (compile-time
 # fallback)" )
 message(STATUS "  └─────────────────────────────────────────┘")
