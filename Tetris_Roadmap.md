@@ -21,13 +21,13 @@
 - [X] Write `draw_rect(SDL_Renderer* r, float x, float y, float w, float h, Color c)`
 - [X] Test: draw 5 rectangles at different positions/colors each frame
 - [X] Clear screen before drawing each frame
-- [ ] COMMIT
+- [X] COMMIT
 
 ## Milestone 3: Grid & Board State
-- [ ] Define `#define BOARD_WIDTH 10` and `#define BOARD_HEIGHT 20`
-- [ ] Define `#define CELL_SIZE 32`
-- [ ] Declare `int board[BOARD_HEIGHT][BOARD_WIDTH]`
-- [ ] Write `draw_board(SDL_Renderer* r, int board[BOARD_HEIGHT][BOARD_WIDTH])`
+- [X] Define `#define BOARD_WIDTH 10` and `#define BOARD_HEIGHT 20`
+- [X] Define `#define CELL_SIZE 32`
+- [X] Declare `int board[BOARD_HEIGHT][BOARD_WIDTH]`
+- [X] Write `draw_board(SDL_Renderer* r, int board[BOARD_HEIGHT][BOARD_WIDTH])`
 - [ ] Map color 0 → dark gray (empty)
 - [ ] Map colors 1–7 → piece colors
 - [ ] Fill board with test pattern (random or alternating)
