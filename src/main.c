@@ -1,64 +1,30 @@
+#include "colors.h"
+#include "core.h"
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_keyboard.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <tetrominos.h>
 #include <time.h>
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-
-#define SCREENWIDTH 600
-#define SCREENHEIGHT 680
-
-#define CELL_W 28
-#define CELL_H 28
-
-#define BOARD_HEIGHT 20
-#define BOARD_WIDTH 10
-
-#define HOLD_W 150
-#define HOLD_H 150
-
-#define HOLD_X 440
-#define HOLD_Y 50
-typedef struct {
-  u8 r;
-  u8 g;
-  u8 b;
-  u8 a;
-} Color;
-
-typedef enum { CELL_EMPTY = 0, CELL_FILLED = 1 } cell_state;
-
-const Color base_color = {.r = 28, .g = 28, .b = 28, .a = 255};
-const Color teel = {.r = 51, .g = 196, .b = 175, .a = 255};
+int board[BOARD_HEIGHT][BOARD_WIDTH];
 void draw_rect(SDL_Renderer *rend, SDL_FRect *rect, Color c) {
   SDL_SetRenderDrawColor(rend, c.r, c.g, c.b, c.a);
   SDL_RenderFillRect(rend, rect);
 }
 
-void init_board(int board[BOARD_HEIGHT][BOARD_WIDTH]) {
+void init_board() {
   for (int i = 0; i < BOARD_HEIGHT; ++i) {
     for (int j = 0; j < BOARD_WIDTH; ++j) {
-      board[i][j] = (i + j) % 2;
+      board[i][j] = 0;
     }
   }
 }
 
-void draw_board(SDL_Renderer *rend, int board[BOARD_HEIGHT][BOARD_WIDTH]) {
-  const i16 paddingW = 150;
-  const i16 paddingH = 50;
+void draw_board(SDL_Renderer *rend) {
   Color c;
   for (int i = 0; i < BOARD_HEIGHT; ++i) {
     for (int j = 0; j < BOARD_WIDTH; ++j) {
-      if (board[i][j]) {
-        c = base_color;
-      } else {
-        c = (Color){.r = 200, .g = 200, .b = 200, .a = 255};
-      }
+      c = (board[i][j]) ? Piece_colors[board[i][j] - 1] : base_color;
       SDL_FRect rect = {.x = CELL_W * j + paddingW,
                         .y = CELL_H * i + paddingH,
                         .w = CELL_W,
@@ -67,6 +33,36 @@ void draw_board(SDL_Renderer *rend, int board[BOARD_HEIGHT][BOARD_WIDTH]) {
     }
   }
 }
+
+void set_piece(SDL_Renderer *rend, Piece p) {
+  switch (p.type) {
+  case TT_I:
+    for (int i = 0; i < 4; i++) {
+      int x = p.cell.x + (p.rotation) ? I_rot1[i].x : I_rot0[i].x;
+      int y = p.cell.y + (p.rotation) ? I_rot1[i].y : I_rot0[i].y;
+      SDL_FRect rect = {.x = CELL_W * x + paddingW,
+                        .y = CELL_H * y + paddingH,
+                        .w = CELL_W,
+                        .h = CELL_H};
+      draw_rect(rend, &rect, Piece_colors[p.type - 1]);
+    }
+    break;
+  case TT_O:
+    break;
+  case TT_T:
+    break;
+  case TT_S:
+    break;
+  case TT_Z:
+    break;
+  case TT_J:
+    break;
+  case TT_L:
+    break;
+  }
+}
+
+// void update() { board; }
 
 void draw_hold_window(SDL_Renderer *rend) {
   SDL_FRect rect = {.x = HOLD_X, .y = HOLD_Y, .w = HOLD_W, .h = HOLD_H};
@@ -91,21 +87,43 @@ int main() {
     SDL_Log("Renderer not created correctly");
     return 1;
   }
-  Color black = {.r = 0, .g = 0, .b = 0, .a = 0};
-  int board[BOARD_HEIGHT][BOARD_WIDTH];
-  init_board(board);
+
+  Piece p = {
+      .cell.x = 0,
+      .cell.y = 0,
+      .type = 1,
+      .rotation = 1,
+  };
+
+  init_board();
+  // set_piece(board, p);
   bool running = true;
   while (running) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_EVENT_QUIT) {
+      switch (e.type) {
+      case SDL_EVENT_QUIT:
         running = false;
+        break;
+      case SDL_EVENT_KEY_DOWN:
+        if (e.key.key == SDLK_A || e.key.key == SDLK_LEFT) {
+          p.cell.x--;
+        }
+        if (e.key.key == SDLK_D || e.key.key == SDLK_RIGHT) {
+          p.cell.x++;
+        }
+        if (e.key.key == SDLK_SPACE) {
+          p.rotation = !(p.rotation);
+        }
+        printf("Key pressed: %d\n", e.key.key);
+        break;
       }
     }
     SDL_SetRenderDrawColor(rend, black.r, black.g, black.b, black.a);
     SDL_RenderClear(rend);
-    draw_board(rend, board);
+    draw_board(rend);
     draw_hold_window(rend);
+    set_piece(rend, p);
     SDL_RenderPresent(rend);
   }
   SDL_DestroyRenderer(rend);
