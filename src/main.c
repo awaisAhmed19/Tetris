@@ -1,32 +1,31 @@
 #include "colors.h"
 #include "core.h"
+// #include "tetrominos.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_keyboard.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <tetrominos.h>
 #include <time.h>
-const Uint64 FALL_INTERVAL = 900;
-int board[BOARD_HEIGHT][BOARD_WIDTH];
+const Uint64 FALL_INTERVAL = 300;
 
 void draw_rect(SDL_Renderer *rend, SDL_FRect *rect, Color c) {
   SDL_SetRenderDrawColor(rend, c.r, c.g, c.b, c.a);
   SDL_RenderFillRect(rend, rect);
 }
 
-void init_board() {
+void init_board(Game *g) {
   for (int i = 0; i < BOARD_HEIGHT; ++i) {
     for (int j = 0; j < BOARD_WIDTH; ++j) {
-      board[i][j] = 0;
+      g->board[i][j] = CELL_EMPTY;
     }
   }
 }
 
-void draw_board(SDL_Renderer *rend) {
+void draw_board(Game *g, SDL_Renderer *rend) {
   Color c;
   for (int i = 0; i < BOARD_HEIGHT; ++i) {
     for (int j = 0; j < BOARD_WIDTH; ++j) {
-      c = (board[i][j]) ? Piece_colors[board[i][j] - 1] : base_color;
+      c = (g->board[i][j]) ? Piece_colors[g->curr.type] : base_color;
       SDL_FRect rect = {.x = CELL_W * j + BOARD_X,
                         .y = CELL_H * i + BOARD_Y,
                         .w = CELL_W,
@@ -36,80 +35,105 @@ void draw_board(SDL_Renderer *rend) {
   }
 }
 
-void draw_piece(SDL_Renderer *rend, Piece *p) {
-  switch (p->type) {
-  case TT_I:
-    for (int i = 0; i < 4; i++) {
-      int x = p->cell.x + (p->rotation ? I_rot1[i].x : I_rot0[i].x);
-      int y = p->cell.y + (p->rotation ? I_rot1[i].y : I_rot0[i].y);
-      SDL_FRect rect = {.x = CELL_W * x + BOARD_X,
-                        .y = CELL_H * y + BOARD_Y,
-                        .w = CELL_W,
-                        .h = CELL_H};
-      draw_rect(rend, &rect, Piece_colors[p->type - 1]);
-    }
-    break;
-  case TT_O:
-    break;
-  case TT_T:
-    break;
-  case TT_S:
-    break;
-  case TT_Z:
-    break;
-  case TT_J:
-    break;
-  case TT_L:
-    break;
-  }
-}
-
-// void update() { board; }
-
 void draw_hold_window(SDL_Renderer *rend) {
   SDL_FRect rect = {.x = HOLD_X, .y = HOLD_Y, .w = HOLD_W, .h = HOLD_H};
   SDL_SetRenderDrawColor(rend, base_color.r, base_color.g, base_color.b,
                          base_color.a);
   SDL_RenderFillRect(rend, &rect);
 }
+void draw_piece(SDL_Renderer *rend, const Piece *p) {
+  for (int i = 0; i < CELL_SIZE; ++i) {
+    for (int j = 0; j < CELL_SIZE; ++j) {
 
-bool check_bounds(Piece *p) {
-  switch (p->type) {
-  case TT_I:
-    return p->cell.x >= 0 && p->cell.x <= BOARD_WIDTH;
-    break;
-  case TT_O:
-    break;
-  case TT_T:
-    break;
-  case TT_S:
-    break;
-  case TT_Z:
-    break;
-  case TT_J:
-    break;
-  case TT_L:
-    break;
+      if (p->cells[i][j] == 0)
+        continue;
+
+      int board_x = p->pos.x + j;
+      int board_y = p->pos.y + i;
+
+      SDL_FRect rect = {.x = CELL_W * board_x + BOARD_X,
+                        .y = CELL_H * board_y + BOARD_Y,
+                        .w = CELL_W,
+                        .h = CELL_H};
+
+      draw_rect(rend, &rect, Piece_colors[p->type]);
+    }
   }
-  return false;
 }
-bool check_piece_valid(Piece *c) { return true; }
-void update(Piece *p) {
+Pos get_piece_pos(const Piece *p) {
+  for (int i = 0; i < CELL_SIZE; ++i) {
+    for (int j = 0; j < CELL_SIZE; ++j) {
+      if (p->cells[i][j] == 0)
+        continue;
 
-  Piece candidate = *p;
-  candidate.cell.y++;
-  *p = candidate;
-  // if (check_piece_valid(&candidate)) {
-  //   *p = candidate;
-  // } else {
-  //   // eventually:
-  //   // lock_piece(p);
-  //   // spawn_piece(p);
-  // }
+      return (Pos){.x = p->pos.x + j, .y = p->pos.y + i};
+    }
+  }
+
+  return (Pos){.x = -1, .y = -1};
+}
+void print_TT(Piece *p) {
+  for (int i = 0; i < CELL_SIZE; i++) {
+    for (int j = 0; j < CELL_SIZE; j++) {
+      printf("%d ", p->cells[i][j]);
+    }
+    printf("\n");
+  }
+}
+bool check_piece_valid(Game *g) {
+  Piece *p = &g->curr;
+  for (int i = 0; i < CELL_SIZE; i++) {
+    for (int j = 0; j < CELL_SIZE; j++) {
+
+      if (p->cells[i][j] == 0)
+        continue;
+
+      int board_x = p->pos.x + j;
+      int board_y = p->pos.y + i;
+
+      if (board_x < 0 || board_x >= BOARD_WIDTH)
+        return false;
+
+      if (board_y >= BOARD_HEIGHT)
+        return false;
+
+      if (board_y < 0)
+        continue;
+
+      if (g->board[board_y][board_x] != CELL_EMPTY)
+        return false;
+    }
+  }
+
+  return true;
+}
+
+void lock_piece(Game *g) {
+  for (int i = 0; i < CELL_SIZE; ++i) {
+    for (int j = 0; j < CELL_SIZE; ++j) {
+      if (g->curr.cells[i][j] == 0)
+        continue;
+      g->board[g->curr.pos.y][g->curr.pos.x] = g->curr.type;
+    }
+  }
+}
+
+int get_type() { return rand() % TT_NUMS; }
+void update(Game *g) {
+
+  Piece *candidate = &g->curr;
+  candidate->pos.y += 1;
+  if (check_piece_valid(g)) {
+    g->curr = *candidate;
+  } else {
+    lock_piece(g);
+    g->curr = make_piece(get_type());
+    //   spawn_piece(p);
+    //   // }
+  }
 }
 int main() {
   srand((unsigned)time(0));
-  srand(2020);
   SDL_Window *win = NULL;
   SDL_Renderer *rend = NULL;
   SDL_Init(SDL_INIT_VIDEO);
@@ -124,61 +148,59 @@ int main() {
     SDL_Log("Renderer not created correctly");
     return 1;
   }
+  Game game = {0};
+  int type = get_type();
+  printf("type generate: %d", type);
+  game.curr = make_piece(type);
 
-  Piece p = {
-      .cell.x = 0,
-      .cell.y = 0,
-      .type = 1,
-      .rotation = 1,
-  };
-
-  init_board();
-  // draw_piece(board, p);
-  bool running = true;
+  init_board(&game);
+  game.running = 1;
   u64 last_fall = SDL_GetTicks();
-  while (running) {
+  while (game.running) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       switch (e.type) {
       case SDL_EVENT_QUIT:
-        running = false;
+        game.running = false;
         break;
       case SDL_EVENT_KEY_DOWN:
-        if (e.key.key == SDLK_A || e.key.key == SDLK_LEFT) {
-          if (p.cell.x <= 0) {
-            p.cell.x = 0;
-          } else {
-            p.cell.x--;
-          }
-          printf("P->x--: %d\n", p.cell.x);
+        if ((e.key.mod & SDL_KMOD_CTRL) && e.key.key == SDLK_Z) {
+          rotate_count_clockwise(game.curr.cells);
         }
-        if (e.key.key == SDLK_D || e.key.key == SDLK_RIGHT) {
-          if (p.cell.x >= BOARD_WIDTH - 1 ||
-              (p.rotation == 0 && p.cell.x >= BOARD_WIDTH - 4)) {
-            p.cell.x = p.rotation ? BOARD_WIDTH - 1 : BOARD_WIDTH - 4;
+        if (e.key.key == SDLK_X) {
+          rotate_clockwise(game.curr.cells);
+        }
 
-          } else {
-            p.cell.x++;
+        if (e.key.key == SDLK_LEFT) {
+          Piece candidate = game.curr;
+          candidate.pos.x--;
+
+          if (check_piece_valid(&game)) {
+            game.curr = candidate;
           }
-          printf("P->x++: %d\n", p.cell.x);
         }
-        if (e.key.key == SDLK_SPACE) {
-          p.rotation = !(p.rotation);
+
+        if (e.key.key == SDLK_RIGHT) {
+          Piece candidate = game.curr;
+          candidate.pos.x++;
+
+          if (check_piece_valid(&game)) {
+            game.curr = candidate;
+          }
         }
-        printf("Key pressed: %d\n", e.key.key);
         break;
       }
     }
     u64 now = SDL_GetTicks();
     if (now - last_fall > FALL_INTERVAL) {
-      update(&p);
+      update(&game);
       last_fall = now;
     }
     SDL_SetRenderDrawColor(rend, black.r, black.g, black.b, black.a);
     SDL_RenderClear(rend);
-    draw_board(rend);
+    draw_board(&game, rend);
     draw_hold_window(rend);
-    draw_piece(rend, &p);
+    draw_piece(rend, &game.curr);
     SDL_RenderPresent(rend);
     // SDL_Delay(1500);
   }

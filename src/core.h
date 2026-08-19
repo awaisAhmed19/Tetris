@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <tetrominos.h>
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
@@ -31,14 +32,15 @@ typedef int32_t i32;
 // #define SPAWN_Y 0
 
 typedef struct {
-  const i16 x;
-  const i16 y;
+  i8 running;
+  i16 score;
+  i16 speed;
 
-  i16 w;
-  i16 h;
+  Piece curr;
+  Piece hold;
 
-  i8 state[BOARD_WIDTH][BOARD_HEIGHT];
-} game_board;
+  i16 board[BOARD_WIDTH][BOARD_HEIGHT];
+} Game;
 
 typedef struct {
   u8 r;

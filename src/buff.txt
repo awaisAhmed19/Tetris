@@ -1,0 +1,111 @@
+
+#include "colors.h"
+#include "core.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_keyboard.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <tetrominos.h>
+#include <time.h>
+const Uint64 FALL_INTERVAL = 300;
+int board[BOARD_HEIGHT][BOARD_WIDTH];
+
+void draw_rect(SDL_Renderer *rend, SDL_FRect *rect, Color c) {
+  SDL_SetRenderDrawColor(rend, c.r, c.g, c.b, c.a);
+  SDL_RenderFillRect(rend, rect);
+}
+
+void init_board() {
+  for (int i = 0; i < BOARD_HEIGHT; ++i) {
+    for (int j = 0; j < BOARD_WIDTH; ++j) {
+      board[i][j] = 0;
+    }
+  }
+}
+
+void draw_board(SDL_Renderer *rend) {
+  Color c;
+  for (int i = 0; i < BOARD_HEIGHT; ++i) {
+    for (int j = 0; j < BOARD_WIDTH; ++j) {
+      c = (board[i][j]) ? Piece_colors[board[i][j] - 1] : base_color;
+      SDL_FRect rect = {.x = CELL_W * j + BOARD_X,
+                        .y = CELL_H * i + BOARD_Y,
+                        .w = CELL_W,
+                        .h = CELL_H};
+      draw_rect(rend, &rect, c);
+    }
+  }
+}
+
+void draw_hold_window(SDL_Renderer *rend) {
+  SDL_FRect rect = {.x = HOLD_X, .y = HOLD_Y, .w = HOLD_W, .h = HOLD_H};
+  SDL_SetRenderDrawColor(rend, base_color.r, base_color.g, base_color.b,
+                         base_color.a);
+  SDL_RenderFillRect(rend, &rect);
+}
+void init_piece(Piece *p) {
+  p->type = 1;
+  p->buff = get_piece(p->type);
+}
+void update(Piece *p) {
+
+  Piece candidate = *p;
+  candidate.cell.y += 1;
+  if (check_piece_valid(&candidate)) {
+    *p = candidate;
+  } else {
+    //   // eventually:
+    lock_piece(p);
+    //   // spawn_piece(p);
+    // }
+  }
+}
+int main() {
+  srand((unsigned)time(0));
+  SDL_Window *win = NULL;
+  SDL_Renderer *rend = NULL;
+  SDL_Init(SDL_INIT_VIDEO);
+  win = SDL_CreateWindow("Tetris", SCREENWIDTH, SCREENHEIGHT, 0);
+  rend = SDL_CreateRenderer(win, 0);
+  if (!win) {
+    SDL_Log("window not created correctly");
+    return 1;
+  }
+
+  if (!rend) {
+    SDL_Log("Renderer not created correctly");
+    return 1;
+  }
+
+  Piece *p;
+  init_board();
+  init_piece(p);
+  // draw_piece(board, p);
+  bool running = true;
+  u64 last_fall = SDL_GetTicks();
+  while (running) {
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+      switch (e.type) {
+      case SDL_EVENT_QUIT:
+        running = false;
+        break;
+      case SDL_EVENT_KEY_DOWN:
+      }
+      u64 now = SDL_GetTicks();
+      if (now - last_fall > FALL_INTERVAL) {
+        update(p);
+        last_fall = now;
+      }
+      SDL_SetRenderDrawColor(rend, black.r, black.g, black.b, black.a);
+      SDL_RenderClear(rend);
+      draw_board(rend);
+      draw_hold_window(rend);
+      SDL_RenderPresent(rend);
+      // SDL_Delay(1500);
+    }
+    SDL_DestroyRenderer(rend);
+    SDL_DestroyWindow(win);
+    SDL_Quit();
+    return 0;
+  }
