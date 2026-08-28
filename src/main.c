@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-const Uint64 FALL_INTERVAL = 300;
+const u64 FALL_INTERVAL = 300;
 
 void draw_rect(SDL_Renderer *rend, SDL_FRect *rect, Color c) {
   SDL_SetRenderDrawColor(rend, c.r, c.g, c.b, c.a);
@@ -60,6 +60,7 @@ void draw_piece(SDL_Renderer *rend, const Piece *p) {
     }
   }
 }
+
 Pos get_piece_pos(const Piece *p) {
   for (int i = 0; i < CELL_SIZE; ++i) {
     for (int j = 0; j < CELL_SIZE; ++j) {
@@ -72,6 +73,16 @@ Pos get_piece_pos(const Piece *p) {
 
   return (Pos){.x = -1, .y = -1};
 }
+void print_board(Game *g) {
+  for (int i = 0; i < BOARD_HEIGHT; i++) {
+    printf("##");
+    for (int j = 0; j < BOARD_WIDTH; j++) {
+      printf(" %d ", g->board[i][j]);
+    }
+    printf("##");
+    printf("\n");
+  }
+}
 void print_TT(Piece *p) {
   for (int i = 0; i < CELL_SIZE; i++) {
     for (int j = 0; j < CELL_SIZE; j++) {
@@ -80,8 +91,7 @@ void print_TT(Piece *p) {
     printf("\n");
   }
 }
-bool check_piece_valid(Game *g) {
-  Piece *p = &g->curr;
+bool check_piece_valid(const Game *g, const Piece *p) {
   for (int i = 0; i < CELL_SIZE; i++) {
     for (int j = 0; j < CELL_SIZE; j++) {
 
@@ -107,31 +117,36 @@ bool check_piece_valid(Game *g) {
 
   return true;
 }
-
 void lock_piece(Game *g) {
   for (int i = 0; i < CELL_SIZE; ++i) {
     for (int j = 0; j < CELL_SIZE; ++j) {
-      if (g->curr.cells[i][j] == 0)
-        continue;
-      g->board[g->curr.pos.y][g->curr.pos.x] = g->curr.type;
+      int board_x = g->curr.pos.x + j;
+      int board_y = g->curr.pos.y + i;
+
+      if (g->curr.cells[i][j] == 1 && board_x >= 0 && board_x < BOARD_WIDTH &&
+          board_y >= 0 && board_y < BOARD_HEIGHT) {
+        g->board[board_y][board_x] = g->curr.type;
+        print_board(g);
+      }
     }
   }
 }
-
 int get_type() { return rand() % TT_NUMS; }
-void update(Game *g) {
 
-  Piece *candidate = &g->curr;
-  candidate->pos.y += 1;
-  if (check_piece_valid(g)) {
-    g->curr = *candidate;
+void spawn_piece(Game *g) { g->curr = make_piece(get_type()); }
+
+void update(Game *g) {
+  Piece candidate = g->curr;
+  candidate.pos.y += 1;
+  if (check_piece_valid(g, &candidate)) {
+    g->curr = candidate;
   } else {
     lock_piece(g);
-    g->curr = make_piece(get_type());
-    //   spawn_piece(p);
-    //   // }
+    spawn_piece(g);
   }
 }
+
+void validate_Piece(Piece *curr) {}
 int main() {
   srand((unsigned)time(0));
   SDL_Window *win = NULL;
@@ -150,12 +165,13 @@ int main() {
   }
   Game game = {0};
   int type = get_type();
-  printf("type generate: %d", type);
+  printf("type generate: %d\n", type);
   game.curr = make_piece(type);
 
   init_board(&game);
   game.running = 1;
   u64 last_fall = SDL_GetTicks();
+  print_board(&game);
   while (game.running) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -165,17 +181,25 @@ int main() {
         break;
       case SDL_EVENT_KEY_DOWN:
         if ((e.key.mod & SDL_KMOD_CTRL) && e.key.key == SDLK_Z) {
-          rotate_count_clockwise(game.curr.cells);
+          Piece candidate = game.curr;
+          rotate_count_clockwise(candidate.cells);
+          if (check_piece_valid(&game, &candidate)) {
+            game.curr = candidate;
+          }
         }
         if (e.key.key == SDLK_X) {
+          Piece candidate = game.curr;
           rotate_clockwise(game.curr.cells);
+          if (check_piece_valid(&game, &candidate)) {
+            game.curr = candidate;
+          }
         }
 
         if (e.key.key == SDLK_LEFT) {
           Piece candidate = game.curr;
           candidate.pos.x--;
 
-          if (check_piece_valid(&game)) {
+          if (check_piece_valid(&game, &candidate)) {
             game.curr = candidate;
           }
         }
@@ -184,7 +208,7 @@ int main() {
           Piece candidate = game.curr;
           candidate.pos.x++;
 
-          if (check_piece_valid(&game)) {
+          if (check_piece_valid(&game, &candidate)) {
             game.curr = candidate;
           }
         }
@@ -202,7 +226,6 @@ int main() {
     draw_hold_window(rend);
     draw_piece(rend, &game.curr);
     SDL_RenderPresent(rend);
-    // SDL_Delay(1500);
   }
   SDL_DestroyRenderer(rend);
   SDL_DestroyWindow(win);

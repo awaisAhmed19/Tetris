@@ -91,11 +91,20 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
             -Wextra
             -Wpedantic
             -Wshadow
-            -Wnon-virtual-dtor
+
             "$<$<CONFIG:Debug>:-g3>"
             "$<$<CONFIG:Debug>:-O0>"
+            "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
+            "$<$<CONFIG:Debug>:-fno-omit-frame-pointer>"
+
             "$<$<CONFIG:Release>:-O2>"
             "$<$<CONFIG:RelWithDebInfo>:-O2;-g>"
+    )
+
+    target_link_options(
+        tetris
+        PRIVATE
+            "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
     )
 endif()
 

@@ -35,11 +35,11 @@ typedef struct {
   i8 running;
   i16 score;
   i16 speed;
-
+  i16 lines;
   Piece curr;
   Piece hold;
 
-  i16 board[BOARD_WIDTH][BOARD_HEIGHT];
+  i16 board[BOARD_HEIGHT][BOARD_WIDTH];
 } Game;
 
 typedef struct {
