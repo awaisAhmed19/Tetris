@@ -1,14 +1,5 @@
 #pragma once
-#include <stdint.h>
 #include <tetrominos.h>
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
 
 #define SCREENWIDTH 600
 #define SCREENHEIGHT 680
@@ -33,20 +24,13 @@ typedef int32_t i32;
 
 typedef struct {
   i8 running;
+
   i16 score;
   i16 speed;
   i16 lines;
+
   Piece curr;
   Piece hold;
 
   i16 board[BOARD_HEIGHT][BOARD_WIDTH];
 } Game;
-
-typedef struct {
-  u8 r;
-  u8 g;
-  u8 b;
-  u8 a;
-} Color;
-
-typedef enum { CELL_EMPTY = 0, CELL_FILLED = 1 } cell_state;
