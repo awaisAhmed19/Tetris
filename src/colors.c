@@ -18,4 +18,7 @@ const Color dark_gray = {.r = 60, .g = 60, .b = 60, .a = 255};
 
 const Color border = {.r = 45, .g = 45, .b = 45, .a = 255};
 const Color ghost = {
-    .r = 180, .g = 180, .b = 180, .a = 100}; // Transparent ghost piece
+    .r = 180, .g = 180, .b = 180, .a = 1}; // Transparent ghost piece
+
+const Color Piece_Color[8] = {base_color, cyan,  blue,   orange,
+                              yellow,     green, purple, ghost};

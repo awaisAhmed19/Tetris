@@ -24,7 +24,12 @@ void draw_board(Game *g, SDL_Renderer *rend) {
   Color c;
   for (i16 i = 0; i < BOARD_HEIGHT; ++i) {
     for (i16 j = 0; j < BOARD_WIDTH; ++j) {
-      c = (g->board[i][j]) ? g->curr.color : base_color;
+
+      c = base_color;
+
+      if (g->board[i][j] != CELL_EMPTY) {
+        c = Piece_Color[g->board[i][j]];
+      }
       SDL_FRect rect = {.x = CELL_W * j + BOARD_X,
                         .y = CELL_H * i + BOARD_Y,
                         .w = CELL_W,

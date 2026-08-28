@@ -19,3 +19,4 @@ extern const Color dark_gray;
 
 extern const Color border;
 extern const Color ghost;
+extern const Color Piece_Color[8];
