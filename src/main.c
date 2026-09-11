@@ -1,4 +1,5 @@
 #include "core.h"
+#include "tetrominos.h"
 #include "types.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_keyboard.h>
@@ -125,6 +126,9 @@ void print_board(Game *g) {
   printf("##################################\n");
   printf("##################################\n");
   printf("\n");
+
+  printf("g->curr.type = %d\n", g->curr.type);
+  printf("g->lines = %d\n", g->lines);
 }
 void print_TT(Piece *p) {
   for (i16 i = 0; i < CELL_SIZE; i++) {
@@ -169,10 +173,10 @@ void lock_piece(Game *g) {
       if (g->curr.cells[i][j] == 1 && board_x >= 0 && board_x < BOARD_WIDTH &&
           board_y >= 0 && board_y < BOARD_HEIGHT) {
         g->board[board_y][board_x] = g->curr.type;
-        print_board(g);
       }
     }
   }
+  print_board(g);
 }
 i16 get_type() {
   i16 type = rand() % TT_NUMS;
@@ -193,10 +197,13 @@ void update(Game *g) {
     lock_piece(g);
     for (int y = BOARD_HEIGHT - 1; y >= 0; y--) {
       if (is_row_full(g, y)) {
-        g->lines = shift_row_below(g);
+        g->lines += shift_row_below(g);
       }
     }
     spawn_piece(g);
+    if (!check_piece_valid(g, &g->curr)) {
+      g->game_over = true;
+    }
   }
 }
 
@@ -223,6 +230,7 @@ i16 main() {
 
   init_board(&game);
   game.running = 1;
+  game.game_over = false;
   u64 last_fall = SDL_GetTicks();
   print_board(&game);
   while (game.running) {
@@ -233,6 +241,8 @@ i16 main() {
         game.running = false;
         break;
       case SDL_EVENT_KEY_DOWN:
+        if (game.game_over)
+          continue;
         if ((e.key.mod & SDL_KMOD_CTRL) && e.key.key == SDLK_Z) {
           Piece candidate = game.curr;
           rotate_count_clockwise(candidate.cells);
@@ -242,7 +252,8 @@ i16 main() {
         }
         if (e.key.key == SDLK_SPACE) {
           Piece candidate = game.curr;
-          while (candidate.pos.y < BOARD_HEIGHT - 1) {
+          while (check_piece_valid(&game, &candidate) &&
+                 candidate.pos.y < BOARD_HEIGHT - 1) {
             candidate.pos.y++;
             if (check_piece_valid(&game, &candidate))
               game.curr = candidate;
@@ -250,7 +261,7 @@ i16 main() {
         }
         if (e.key.key == SDLK_X) {
           Piece candidate = game.curr;
-          rotate_clockwise(game.curr.cells);
+          rotate_clockwise(candidate.cells);
           if (check_piece_valid(&game, &candidate)) {
             game.curr = candidate;
           }

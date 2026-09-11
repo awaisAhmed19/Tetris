@@ -85,27 +85,27 @@ Piece make_piece(enum TT_tetrominos type) {
     break;
   case TT_L:
     copy_matrix(Mat_L, p.cells);
-    p.color = red;
+    p.color = orange;
     break;
   case TT_O:
     copy_matrix(Mat_O, p.cells);
-    p.color = blue;
+    p.color = yellow;
     break;
   case TT_J:
     copy_matrix(Mat_J, p.cells);
-    p.color = orange;
+    p.color = blue;
     break;
   case TT_S:
     copy_matrix(Mat_S, p.cells);
-    p.color = purple;
+    p.color = green;
     break;
   case TT_Z:
     copy_matrix(Mat_Z, p.cells);
-    p.color = yellow;
+    p.color = red;
     break;
   case TT_T:
     copy_matrix(Mat_T, p.cells);
-    p.color = green;
+    p.color = purple;
     break;
   case CELL_EMPTY:
     break;

@@ -31,6 +31,6 @@ typedef struct {
 
   Piece curr;
   Piece hold;
-
+  bool game_over;
   i16 board[BOARD_HEIGHT][BOARD_WIDTH];
 } Game;

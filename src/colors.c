@@ -20,5 +20,15 @@ const Color border = {.r = 45, .g = 45, .b = 45, .a = 255};
 const Color ghost = {
     .r = 180, .g = 180, .b = 180, .a = 1}; // Transparent ghost piece
 
-const Color Piece_Color[8] = {base_color, cyan,  blue,   orange,
-                              yellow,     green, purple, ghost};
+const Color Piece_Color[9] = {base_color, cyan, yellow, purple, green,
+                              red,        blue, orange, ghost};
+// enum TT_tetrominos {
+//   CELL_EMPTY = 0,
+//   TT_I,
+//   TT_O,
+//   TT_T,
+//   TT_S,
+//   TT_Z,
+//   TT_J,
+//   TT_L,
+// };
