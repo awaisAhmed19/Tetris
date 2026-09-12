@@ -76,8 +76,8 @@ void copy_matrix(const i16 src[CELL_SIZE][CELL_SIZE],
 Piece make_piece(enum TT_tetrominos type) {
   Piece p = {0};
   p.type = type;
-  p.pos.x = BOARD_WIDTH / 2 - CELL_SIZE / 2;
-  p.pos.y = 0;
+  p.pos.x = SPAWN_X;
+  p.pos.y = SPAWN_Y;
   switch (type) {
   case TT_I:
     copy_matrix(Mat_I, p.cells);

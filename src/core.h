@@ -19,8 +19,8 @@
 #define HOLD_X (BOARD_X + (BOARD_WIDTH * CELL_H) + 10)
 #define HOLD_Y ((SCREENHEIGHT - (BOARD_HEIGHT * CELL_H)) * 0.5)
 
-// #define SPAWN_X 5
-// #define SPAWN_Y 0
+#define SPAWN_X BOARD_WIDTH / 2 - CELL_SIZE / 2
+#define SPAWN_Y 0
 
 typedef struct {
   i8 running;
@@ -31,6 +31,8 @@ typedef struct {
 
   Piece curr;
   Piece hold;
+  // enum TT_tetrominos prev_type; IDEA: to reduce the likely hood of too many
+  // repeating types
   bool game_over;
   i16 board[BOARD_HEIGHT][BOARD_WIDTH];
 } Game;

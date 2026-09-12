@@ -129,6 +129,7 @@ void print_board(Game *g) {
 
   printf("g->curr.type = %d\n", g->curr.type);
   printf("g->lines = %d\n", g->lines);
+  printf("g->score = %d\n", g->score);
 }
 void print_TT(Piece *p) {
   for (i16 i = 0; i < CELL_SIZE; i++) {
@@ -176,7 +177,6 @@ void lock_piece(Game *g) {
       }
     }
   }
-  print_board(g);
 }
 i16 get_type() {
   i16 type = rand() % TT_NUMS;
@@ -186,7 +186,14 @@ i16 get_type() {
   return type;
 }
 
-void spawn_piece(Game *g) { g->curr = make_piece(get_type()); }
+void spawn_piece(Game *g) {
+  Piece candidate = make_piece(get_type());
+  if (check_piece_valid(g, &candidate)) {
+    g->curr = candidate;
+  } else {
+    g->game_over = true;
+  }
+}
 
 void update(Game *g) {
   Piece candidate = g->curr;
@@ -198,16 +205,38 @@ void update(Game *g) {
     for (int y = BOARD_HEIGHT - 1; y >= 0; y--) {
       if (is_row_full(g, y)) {
         g->lines += shift_row_below(g);
+        g->score += g->lines * 10;
       }
     }
+    print_board(g);
     spawn_piece(g);
-    if (!check_piece_valid(g, &g->curr)) {
-      g->game_over = true;
-    }
   }
 }
 
-i16 main() {
+void draw_hold_piece(SDL_Renderer *rend, Game *g) {
+  if (g->hold.type == 0) {
+    return;
+  }
+  for (i16 i = 0; i < CELL_SIZE; ++i) {
+    for (i16 j = 0; j < CELL_SIZE; ++j) {
+
+      if (g->hold.cells[i][j] == 0)
+        continue;
+
+      SDL_FRect rect = {.x = CELL_W * j + HOLD_X,
+                        .y = CELL_H * i + HOLD_Y,
+                        .w = CELL_W,
+                        .h = CELL_H};
+
+      draw_rect(rend, &rect, g->hold.color);
+    }
+  }
+  // printf("hold type: %d color: {%d,%d,%d,%d}\n", g->hold.type,
+  // g->hold.color.r,
+  //        g->hold.color.g, g->hold.color.b, g->hold.color.a);
+}
+
+int main() {
   srand((unsigned)time(0));
   SDL_Window *win = NULL;
   SDL_Renderer *rend = NULL;
@@ -231,6 +260,9 @@ i16 main() {
   init_board(&game);
   game.running = 1;
   game.game_over = false;
+  game.score = 0;
+  game.lines = 0;
+  game.hold = (Piece){0};
   u64 last_fall = SDL_GetTicks();
   print_board(&game);
   while (game.running) {
@@ -241,8 +273,6 @@ i16 main() {
         game.running = false;
         break;
       case SDL_EVENT_KEY_DOWN:
-        if (game.game_over)
-          continue;
         if ((e.key.mod & SDL_KMOD_CTRL) && e.key.key == SDLK_Z) {
           Piece candidate = game.curr;
           rotate_count_clockwise(candidate.cells);
@@ -257,6 +287,16 @@ i16 main() {
             candidate.pos.y++;
             if (check_piece_valid(&game, &candidate))
               game.curr = candidate;
+          }
+        }
+        if (e.key.key == SDLK_DOWN) {
+          Piece candidate = game.curr;
+          candidate.pos.y++;
+          if (check_piece_valid(&game, &candidate)) {
+            game.curr = candidate;
+          } else {
+            candidate.pos.y--;
+            game.curr = candidate;
           }
         }
         if (e.key.key == SDLK_X) {
@@ -284,6 +324,22 @@ i16 main() {
             game.curr = candidate;
           }
         }
+        if (e.key.key == SDLK_C) {
+          Piece candidate = game.curr;
+          printf("game->hold.type: %d\n", game.hold.type);
+          if (game.hold.type == CELL_EMPTY) {
+            spawn_piece(&game);
+            game.hold = candidate;
+            game.hold.pos.x = SPAWN_X;
+            game.hold.pos.y = SPAWN_Y;
+          } else {
+            game.curr = game.hold;
+            game.hold = candidate;
+            game.hold.pos.x = SPAWN_X;
+            game.hold.pos.y = SPAWN_Y;
+            candidate = (Piece){0};
+          }
+        }
         break;
       }
     }
@@ -296,8 +352,8 @@ i16 main() {
     SDL_RenderClear(rend);
     draw_board(&game, rend);
     draw_hold_window(rend);
+    draw_hold_piece(rend, &game);
     draw_piece(rend, &game.curr);
-
     SDL_RenderPresent(rend);
   }
   SDL_DestroyRenderer(rend);
