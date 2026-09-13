@@ -33,7 +33,8 @@ extern const i16 Mat_L[CELL_SIZE][CELL_SIZE];
 void copy_matrix(const i16 src[CELL_SIZE][CELL_SIZE],
                  i16 dest[CELL_SIZE][CELL_SIZE]);
 
-Piece make_piece(enum TT_tetrominos type);
+extern Piece make_piece(enum TT_tetrominos type);
 
-void rotate_count_clockwise(i16 cells[CELL_SIZE][CELL_SIZE]);
-void rotate_clockwise(i16 cells[CELL_SIZE][CELL_SIZE]);
+extern i16 get_type();
+extern void rotate_count_clockwise(i16 cells[CELL_SIZE][CELL_SIZE]);
+extern void rotate_clockwise(i16 cells[CELL_SIZE][CELL_SIZE]);

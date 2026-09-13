@@ -113,6 +113,13 @@ Piece make_piece(enum TT_tetrominos type) {
   return p;
 }
 
+i16 get_type() {
+  i16 type = rand() % TT_NUMS;
+  while (type == 0) {
+    type = rand() % TT_NUMS;
+  }
+  return type;
+}
 void rotate_count_clockwise(i16 cells[CELL_SIZE][CELL_SIZE]) {
   i16 res[CELL_SIZE][CELL_SIZE];
   for (i16 i = 0; i < CELL_SIZE; ++i) {
